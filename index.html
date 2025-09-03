@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Click to Google Street View</title>
+  <link
+    rel="stylesheet"
+    href="https://js.arcgis.com/4.25/esri/themes/light/main.css"
+  />
+  <script src="https://js.arcgis.com/4.25/"></script>
+  <style>
+    html,
+    body,
+    #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="viewDiv"></div>
+
+  <script>
+    require([
+      "esri/Map",
+      "esri/views/MapView"
+    ], function (Map, MapView) {
+      const map = new Map({
+        basemap: "streets-navigation-vector"
+      });
+
+      const view = new MapView({
+        container: "viewDiv",
+        map: map,
+        center: [-118.244, 34.052], // LA coords
+        zoom: 12
+      });
+
+      view.on("click", function (event) {
+        const lat = event.mapPoint.latitude.toFixed(6);
+        const lon = event.mapPoint.longitude.toFixed(6);
+        const url = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lon}`;
+        window.open(url, "_blank");
+      });
+    });
+  </script>
+</body>
+</html>
