@@ -3,18 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Click to Google Street View</title>
-  <link
-    rel="stylesheet"
-    href="https://js.arcgis.com/4.25/esri/themes/light/main.css"
-  />
+  <title>Street View Launcher</title>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.25/esri/themes/light/main.css" />
   <script src="https://js.arcgis.com/4.25/"></script>
   <style>
-    html,
-    body,
-    #viewDiv {
-      padding: 0;
+    html, body, #viewDiv {
       margin: 0;
+      padding: 0;
       height: 100%;
       width: 100%;
     }
@@ -24,10 +19,11 @@
   <div id="viewDiv"></div>
 
   <script>
-    require([
-      "esri/Map",
-      "esri/views/MapView"
-    ], function (Map, MapView) {
+    require(["esri/Map", "esri/views/MapView", "esri/geometry/Point"], function(Map, MapView, Point) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const lat = parseFloat(urlParams.get("lat"));
+      const lon = parseFloat(urlParams.get("lon"));
+
       const map = new Map({
         basemap: "streets-navigation-vector"
       });
@@ -35,17 +31,25 @@
       const view = new MapView({
         container: "viewDiv",
         map: map,
-        center: [-118.244, 34.052], // LA coords
-        zoom: 12
+        center: (lat && lon) ? [lon, lat] : [-118.244, 34.052],
+        zoom: (lat && lon) ? 17 : 12
       });
 
-      view.on("click", function (event) {
-        const lat = event.mapPoint.latitude.toFixed(6);
-        const lon = event.mapPoint.longitude.toFixed(6);
-        const url = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lon}`;
-        window.open(url, "_blank");
+      if (!isNaN(lat) && !isNaN(lon)) {
+        // Open Google Street View in new tab
+        const gsvUrl = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lon}`;
+        window.open(gsvUrl, "_blank");
+      }
+
+      // Optional: handle click events to still support manual use
+      view.on("click", function(event) {
+        const clickLat = event.mapPoint.latitude.toFixed(6);
+        const clickLon = event.mapPoint.longitude.toFixed(6);
+        const clickUrl = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${clickLat},${clickLon}`;
+        window.open(clickUrl, "_blank");
       });
     });
   </script>
 </body>
 </html>
+
